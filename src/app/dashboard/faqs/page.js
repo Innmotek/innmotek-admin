@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - FAQs Management Page
  * 
@@ -10,10 +12,8 @@
  *   - FaqModal for quick creation & update
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import FaqModal from './faq-modal';
 import {
@@ -46,7 +46,7 @@ export default function FaqsPage() {
   async function loadFaqs() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/faqs`);
+      const res = await authFetch(`${API_URL}/admin/faqs`);
       const data = await res.json();
       if (data.result === 'success') setFaqs(data.faqs || []);
     } catch (err) {
@@ -69,7 +69,7 @@ export default function FaqsPage() {
   async function handleDelete(id, question) {
     if (!confirm(`Are you sure you want to delete FAQ: "${question}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/faqs/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/faqs/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'FAQ deleted successfully.' });

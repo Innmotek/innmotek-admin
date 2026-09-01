@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Banners Management Page
  * 
@@ -10,11 +12,9 @@
  *   - Create & Edit modal integration with WebP uploads
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BannerModal from './banner-modal';
 import {
@@ -48,7 +48,7 @@ export default function BannersPage() {
   async function loadBanners() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/banners`);
+      const res = await authFetch(`${API_URL}/admin/banners`);
       const data = await res.json();
       if (data.result === 'success') setBanners(data.banners || []);
     } catch (err) {
@@ -71,7 +71,7 @@ export default function BannersPage() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete banner "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/banners/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/banners/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Banner deleted successfully.' });

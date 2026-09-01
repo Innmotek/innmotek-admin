@@ -38,3 +38,16 @@ export function clearAuthSession() {
 export function isAuthenticated() {
   return !!getAuthToken();
 }
+
+/**
+ * Authenticated Fetch Wrapper
+ * Automatically attaches Authorization: Bearer <token> to all requests.
+ */
+export async function authFetch(url, options = {}) {
+  const token = getAuthToken();
+  const headers = {
+    ...(options.headers || {}),
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+  return fetch(url, { ...options, headers });
+}

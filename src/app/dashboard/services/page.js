@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Services Management Page
  * 
@@ -10,11 +12,9 @@
  *   - ServiceModal for create and edit operations
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import ServiceModal from './service-modal';
 import {
@@ -48,7 +48,7 @@ export default function ServicesPage() {
   async function loadServices() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/services`);
+      const res = await authFetch(`${API_URL}/admin/services`);
       const data = await res.json();
       if (data.result === 'success') setServices(data.services || []);
     } catch (err) {
@@ -71,7 +71,7 @@ export default function ServicesPage() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete service "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/services/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/services/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Service deleted successfully.' });

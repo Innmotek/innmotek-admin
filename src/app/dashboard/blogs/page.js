@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Blogs Management Page
  * 
@@ -11,11 +13,9 @@
  *   - Tabbed Create & Edit modal
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BlogModal from './blog-modal';
 import {
@@ -54,8 +54,8 @@ export default function BlogsPage() {
     setLoading(true);
     try {
       const [blogsRes, catsRes] = await Promise.all([
-        fetch(`${API_URL}/admin/blogs`).then(r => r.json()),
-        fetch(`${API_URL}/admin/categories`).then(r => r.json())
+        authFetch(`${API_URL}/admin/blogs`).then(r => r.json()),
+        authFetch(`${API_URL}/admin/categories`).then(r => r.json())
       ]);
       if (blogsRes.result === 'success') setBlogs(blogsRes.blogs || []);
       if (catsRes.result === 'success') setCategories(catsRes.categories || []);
@@ -79,7 +79,7 @@ export default function BlogsPage() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete blog article "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/blogs/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/blogs/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Article deleted successfully.' });

@@ -1,3 +1,6 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Blog Article Modal Form (Create & Edit)
  * 
@@ -10,8 +13,6 @@
  *   - WebP image compression with thumbnail preview
  *   - Full pre-population in edit mode
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -98,7 +99,7 @@ export default function BlogModal({ isOpen, onClose, blog, categories, onSaved }
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

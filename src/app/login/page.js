@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Authentication / Login Page
  * 
@@ -8,8 +10,6 @@
  * - Stores JWT token & user RBAC permissions in localStorage session
  * - Smooth transition to /dashboard upon successful verification
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';

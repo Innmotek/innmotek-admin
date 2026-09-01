@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Projects Management Page
  * 
@@ -11,11 +13,9 @@
  *   - Full Create & Edit modal integration
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import ProjectModal from './project-modal';
 import {
@@ -52,7 +52,7 @@ export default function ProjectsPage() {
   async function loadProjects() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/projects`);
+      const res = await authFetch(`${API_URL}/admin/projects`);
       const data = await res.json();
       if (data.result === 'success') setProjects(data.projects || []);
     } catch (err) {
@@ -75,7 +75,7 @@ export default function ProjectsPage() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete project "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/projects/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/projects/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Project deleted successfully.' });

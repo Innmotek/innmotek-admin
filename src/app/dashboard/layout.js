@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Dashboard Layout & Shell
  * 
@@ -11,17 +13,11 @@
  * - Working Logout handler clearing localStorage token session
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  getCurrentUser,
-  clearAuthSession,
-  isAuthenticated
-} from '@/lib/auth';
+import { getCurrentUser, clearAuthSession, isAuthenticated } from '@/lib/auth';
 import {
   LayoutDashboard,
   Layers,

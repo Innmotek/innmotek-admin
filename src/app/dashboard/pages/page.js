@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Static Pages Management Page
  * 
@@ -10,11 +12,9 @@
  *   - Permission-based action controls (page-create, page-edit, page-delete)
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import PageModal from './page-modal';
 import {
@@ -49,7 +49,7 @@ export default function StaticPages() {
   async function loadPages() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/pages`);
+      const res = await authFetch(`${API_URL}/admin/pages`);
       const data = await res.json();
       if (data.result === 'success') setPages(data.pages || []);
     } catch (err) {
@@ -72,7 +72,7 @@ export default function StaticPages() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete static page "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/pages/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/pages/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Page deleted successfully.' });

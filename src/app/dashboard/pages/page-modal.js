@@ -1,3 +1,6 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Static Page Modal Form (Create & Edit)
  * 
@@ -8,8 +11,6 @@
  *   - Page title, slug, HTML description content, SEO meta tags, header banner image
  *   - Auto-compressed WebP image preview
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -87,7 +88,7 @@ export default function PageModal({ isOpen, onClose, page, onSaved }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

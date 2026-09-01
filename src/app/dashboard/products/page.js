@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Products Management Page
  * 
@@ -11,11 +13,9 @@
  * - Gallery images indicator and featured product status
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import ProductModal from './product-modal';
 import {
@@ -58,9 +58,9 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       const [prodsRes, catsRes, brandsRes] = await Promise.all([
-        fetch(`${API_URL}/admin/products`).then(r => r.json()),
-        fetch(`${API_URL}/admin/categories`).then(r => r.json()),
-        fetch(`${API_URL}/admin/brands`).then(r => r.json())
+        authFetch(`${API_URL}/admin/products`).then(r => r.json()),
+        authFetch(`${API_URL}/admin/categories`).then(r => r.json()),
+        authFetch(`${API_URL}/admin/brands`).then(r => r.json())
       ]);
 
       if (prodsRes.result === 'success') setProducts(prodsRes.products || []);
@@ -76,7 +76,7 @@ export default function ProductsPage() {
   async function openEdit(prod) {
     try {
       // Fetch fresh detail with gallery images
-      const res = await fetch(`${API_URL}/admin/products/${prod.id}`);
+      const res = await authFetch(`${API_URL}/admin/products/${prod.id}`);
       const data = await res.json();
       if (data.result === 'success') {
         setSelectedProduct(data.product);
@@ -98,7 +98,7 @@ export default function ProductsPage() {
     if (!confirm(`Are you sure you want to delete product "${title}"?`)) return;
 
     try {
-      const res = await fetch(`${API_URL}/admin/products/${id}`, {
+      const res = await authFetch(`${API_URL}/admin/products/${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();

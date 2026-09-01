@@ -1,3 +1,6 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Product Create & Edit Form Modal
  * 
@@ -14,8 +17,6 @@
  * - Multi-image Gallery uploader with thumbnail previews and removal
  * - Tabbed interface for technical details (General, Technical Specs, SEO, Media)
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -189,7 +190,7 @@ export default function ProductModal({
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',

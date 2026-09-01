@@ -1,10 +1,10 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Dashboard Overview Page
  * 
  * Displays aggregate counts, system health indicators, and module navigation.
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';

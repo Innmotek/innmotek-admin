@@ -1,11 +1,12 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Testimonial Modal Form (Create & Edit)
  * 
  * Replaces Laravel Backend View:
  *   resources/views/backend/testimonial/form.blade.php
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -78,7 +79,7 @@ export default function TestimonialModal({ isOpen, onClose, testimonial, onSaved
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

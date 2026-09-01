@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Testimonials Management Page
  * 
@@ -10,11 +12,9 @@
  *   - TestimonialModal integration
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import TestimonialModal from './testimonial-modal';
 import {
@@ -49,7 +49,7 @@ export default function TestimonialsPage() {
   async function loadTestimonials() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/testimonials`);
+      const res = await authFetch(`${API_URL}/admin/testimonials`);
       const data = await res.json();
       if (data.result === 'success') setTestimonials(data.testimonials || []);
     } catch (err) {
@@ -72,7 +72,7 @@ export default function TestimonialsPage() {
   async function handleDelete(id, name) {
     if (!confirm(`Are you sure you want to delete review from "${name}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/testimonials/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/testimonials/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Testimonial deleted successfully.' });

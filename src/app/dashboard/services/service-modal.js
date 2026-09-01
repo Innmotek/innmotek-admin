@@ -1,11 +1,12 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Service Modal Form (Create & Edit)
  * 
  * Replaces Laravel Backend View:
  *   resources/views/backend/service/form.blade.php
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -86,7 +87,7 @@ export default function ServiceModal({ isOpen, onClose, service, onSaved }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

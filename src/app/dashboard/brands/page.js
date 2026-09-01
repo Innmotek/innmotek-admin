@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Brands Management Page
  * 
@@ -10,11 +12,9 @@
  *   - BrandModal integration
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BrandModal from './brand-modal';
 import {
@@ -49,7 +49,7 @@ export default function BrandsPage() {
   async function loadBrands() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/brands`);
+      const res = await authFetch(`${API_URL}/admin/brands`);
       const data = await res.json();
       if (data.result === 'success') setBrands(data.brands || []);
     } catch (err) {
@@ -72,7 +72,7 @@ export default function BrandsPage() {
   async function handleDelete(id, title) {
     if (!confirm(`Are you sure you want to delete partner brand "${title}"?`)) return;
     try {
-      const res = await fetch(`${API_URL}/admin/brands/${id}`, { method: 'DELETE' });
+      const res = await authFetch(`${API_URL}/admin/brands/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.result === 'success') {
         setFeedback({ type: 'success', message: 'Brand deleted successfully.' });

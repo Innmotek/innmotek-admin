@@ -1,3 +1,6 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Banner Modal Form (Create & Edit)
  * 
@@ -8,8 +11,6 @@
  *   - Title, URL, description, type (main/sub), display order, status
  *   - Auto-compressed WebP hero banner upload with live preview
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -84,7 +85,7 @@ export default function BannerModal({ isOpen, onClose, banner, onSaved }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

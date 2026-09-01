@@ -1,3 +1,6 @@
+'use client';
+
+import { authFetch } from '@/lib/auth';
 /**
  * Innmotek Admin CMS - Project Modal Form (Create & Edit)
  * 
@@ -8,8 +11,6 @@
  *   - Project title, slug, client, location, completion date, summary, full description
  *   - SEO meta fields and WebP showcase photo upload
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -99,7 +100,7 @@ export default function ProjectModal({ isOpen, onClose, project, onSaved }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

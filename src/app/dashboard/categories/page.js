@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Categories Management Page
  * 
@@ -11,11 +13,9 @@
  * - Strict RBAC Permission Guarding (category-create, category-edit, category-delete)
  */
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import {
   Layers,
@@ -67,7 +67,7 @@ export default function CategoriesPage() {
   async function fetchCategories() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/categories`);
+      const res = await authFetch(`${API_URL}/admin/categories`);
       const data = await res.json();
       if (data.result === 'success') {
         setCategories(data.categories || []);
@@ -140,7 +140,7 @@ export default function CategoriesPage() {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await authFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export default function CategoriesPage() {
     if (!confirm(`Are you sure you want to delete category "${title}"?`)) return;
 
     try {
-      const res = await fetch(`${API_URL}/admin/categories/${id}`, {
+      const res = await authFetch(`${API_URL}/admin/categories/${id}`, {
         method: 'DELETE'
       });
       const data = await res.json();

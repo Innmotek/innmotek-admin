@@ -1,10 +1,10 @@
+'use client';
+
 /**
  * Innmotek Admin CMS - Root Index Redirect
  * 
  * Automatically routes users to /dashboard if active session exists, else /login.
  */
-
-'use client';
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
