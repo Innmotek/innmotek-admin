@@ -30,6 +30,7 @@ import {
   Award,
   HelpCircle,
   FileText,
+  Trash2,
   LogOut,
   ChevronRight,
   Shield,
@@ -50,6 +51,7 @@ const NAV_ITEMS = [
   { name: 'Brands', href: '/dashboard/brands', icon: Award, count: '2' },
   { name: 'FAQs', href: '/dashboard/faqs', icon: HelpCircle, count: '9' },
   { name: 'Static Pages', href: '/dashboard/pages', icon: FileText, count: '10' },
+  { name: 'Data Cleanup', href: '/dashboard/cleanup', icon: Trash2, badge: 'Purge' },
 ];
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';

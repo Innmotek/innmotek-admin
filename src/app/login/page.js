@@ -49,12 +49,15 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (!res.ok || data.result !== 'success') {
-        throw new Error(data.message || 'Invalid email or password');
+      const token = data.token || data.data?.token || data.access_token;
+      const user = data.user || data.data?.user;
+
+      if (!token) {
+        throw new Error('Authentication token not received');
       }
 
       // Save token and user details to localStorage session
-      setAuthSession(data.token, data.user);
+      setAuthSession(token, user);
 
       // Transition to dashboard
       router.push('/dashboard');
