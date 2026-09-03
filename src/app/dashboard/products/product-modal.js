@@ -33,6 +33,7 @@ import {
   Settings,
   Image as ImageIcon
 } from 'lucide-react';
+import DualModeEditor from '@/components/common/dual-mode-editor';
 
 export default function ProductModal({
   isOpen,
@@ -359,77 +360,52 @@ export default function ProductModal({
                   </div>
                 </div>
 
-                {/* Summary */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold tracking-wider uppercase text-neutral-300">
-                    Product Summary / Highlights
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.summary}
-                    onChange={e => setFormData({ ...formData, summary: e.target.value })}
-                    placeholder="Short overview shown on catalogue grid cards..."
-                    className="w-full rounded-lg border border-[#2B2B2B] bg-[#181818] px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
-                  />
-                </div>
+                {/* Summary Dual Mode Editor */}
+                <DualModeEditor
+                  label="Product Summary / Highlights"
+                  value={formData.summary}
+                  onChange={val => setFormData({ ...formData, summary: val })}
+                  placeholder="Short overview shown on catalogue grid cards (bullets or paragraph)..."
+                  rows={3}
+                />
 
-                {/* Full Description */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold tracking-wider uppercase text-neutral-300">
-                    Full Description (HTML or Text)
-                  </label>
-                  <textarea
-                    rows={5}
-                    value={formData.description}
-                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Detailed features, overview, heating capabilities, and safety notes..."
-                    className="w-full rounded-lg border border-[#2B2B2B] bg-[#181818] px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
-                  />
-                </div>
+                {/* Full Description Dual Mode Editor */}
+                <DualModeEditor
+                  label="Full Description"
+                  value={formData.description}
+                  onChange={val => setFormData({ ...formData, description: val })}
+                  placeholder="Detailed features, overview, heating capabilities, and safety notes..."
+                  rows={6}
+                />
               </div>
             )}
 
             {/* TAB 2: Technical Specifications */}
             {activeTab === 'technical' && (
-              <div className="space-y-4 animate-fadeIn">
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold tracking-wider uppercase text-neutral-300">
-                    Warranty Terms
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.warrenty}
-                    onChange={e => setFormData({ ...formData, warrenty: e.target.value })}
-                    placeholder="e.g. 5-Year Compressor Warranty & 2-Year Comprehensive Coverage"
-                    className="w-full rounded-lg border border-[#2B2B2B] bg-[#181818] px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
-                  />
-                </div>
+              <div className="space-y-6 animate-fadeIn">
+                <DualModeEditor
+                  label="Warranty Terms"
+                  value={formData.warrenty}
+                  onChange={val => setFormData({ ...formData, warrenty: val })}
+                  placeholder="e.g. 5-Year Compressor Warranty & 2-Year Comprehensive Coverage..."
+                  rows={3}
+                />
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold tracking-wider uppercase text-neutral-300">
-                    Engineering Specifications
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={formData.specification}
-                    onChange={e => setFormData({ ...formData, specification: e.target.value })}
-                    placeholder="e.g. Heating Capacity: 190 Litres, Power Input: 220-240V/50Hz, Refrigerant: R134a..."
-                    className="w-full rounded-lg border border-[#2B2B2B] bg-[#181818] px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
-                  />
-                </div>
+                <DualModeEditor
+                  label="Engineering Specifications"
+                  value={formData.specification}
+                  onChange={val => setFormData({ ...formData, specification: val })}
+                  placeholder="e.g. Heating Capacity: 190 Litres, Power Input: 220-240V/50Hz, Refrigerant: R134a..."
+                  rows={5}
+                />
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold tracking-wider uppercase text-neutral-300">
-                    Installation Guidelines
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={formData.installation}
-                    onChange={e => setFormData({ ...formData, installation: e.target.value })}
-                    placeholder="e.g. Recommended clearance: 500mm around outdoor unit, plumbing connection: 3/4 inch..."
-                    className="w-full rounded-lg border border-[#2B2B2B] bg-[#181818] px-3.5 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
-                  />
-                </div>
+                <DualModeEditor
+                  label="Installation Guidelines"
+                  value={formData.installation}
+                  onChange={val => setFormData({ ...formData, installation: val })}
+                  placeholder="e.g. Recommended clearance: 500mm around outdoor unit, plumbing connection: 3/4 inch..."
+                  rows={4}
+                />
               </div>
             )}
 

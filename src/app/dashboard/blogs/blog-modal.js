@@ -17,6 +17,7 @@ import { authFetch } from '@/lib/auth';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Upload, BookOpen, Globe, Info, Image as ImageIcon } from 'lucide-react';
+import DualModeEditor from '@/components/common/dual-mode-editor';
 
 export default function BlogModal({ isOpen, onClose, blog, categories, onSaved }) {
   const [activeTab, setActiveTab] = useState('content');
@@ -221,27 +222,21 @@ export default function BlogModal({ isOpen, onClose, blog, categories, onSaved }
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Summary / Abstract</label>
-                  <textarea
-                    rows={2}
-                    value={formData.summary}
-                    onChange={e => setFormData({ ...formData, summary: e.target.value })}
-                    placeholder="Brief 1-2 sentence preview shown on blog cards..."
-                    className="mt-1 w-full rounded-xl border border-[#2B2B2B] bg-[#181818] p-3 text-xs text-white placeholder-neutral-600 focus:border-[#C5A880] focus:outline-none resize-none"
-                  />
-                </div>
+                <DualModeEditor
+                  label="Summary / Abstract"
+                  value={formData.summary}
+                  onChange={val => setFormData({ ...formData, summary: val })}
+                  placeholder="Brief 1-2 sentence preview shown on blog cards..."
+                  rows={2}
+                />
 
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Full Article Content (HTML / Text)</label>
-                  <textarea
-                    rows={6}
-                    value={formData.description}
-                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Comprehensive article text, paragraphs, and insights..."
-                    className="mt-1 w-full rounded-xl border border-[#2B2B2B] bg-[#181818] p-3 text-xs text-white placeholder-neutral-600 focus:border-[#C5A880] focus:outline-none font-mono"
-                  />
-                </div>
+                <DualModeEditor
+                  label="Full Article Content"
+                  value={formData.description}
+                  onChange={val => setFormData({ ...formData, description: val })}
+                  placeholder="Comprehensive article text, paragraphs, and insights..."
+                  rows={8}
+                />
 
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Pull Quote / Highlight Statement</label>

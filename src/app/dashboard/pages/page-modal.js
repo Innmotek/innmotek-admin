@@ -15,6 +15,7 @@ import { authFetch } from '@/lib/auth';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Upload, FileText, Globe, Info, Image as ImageIcon } from 'lucide-react';
+import DualModeEditor from '@/components/common/dual-mode-editor';
 
 export default function PageModal({ isOpen, onClose, page, onSaved }) {
   const [activeTab, setActiveTab] = useState('content');
@@ -195,16 +196,13 @@ export default function PageModal({ isOpen, onClose, page, onSaved }) {
                   </select>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Page Body (HTML or Structured Text)</label>
-                  <textarea
-                    rows={8}
-                    value={formData.description}
-                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Enter complete legal clauses, paragraphs, or corporate sections..."
-                    className="mt-1 w-full rounded-xl border border-[#2B2B2B] bg-[#181818] p-3 text-xs text-white focus:border-[#C5A880] focus:outline-none font-mono"
-                  />
-                </div>
+                <DualModeEditor
+                  label="Page Body Content"
+                  value={formData.description}
+                  onChange={val => setFormData({ ...formData, description: val })}
+                  placeholder="Enter complete legal clauses, paragraphs, or corporate sections..."
+                  rows={8}
+                />
 
                 {/* Header Banner Image */}
                 <div>
