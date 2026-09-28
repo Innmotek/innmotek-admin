@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import FaqModal from './faq-modal';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Plus,
   Search,
@@ -31,6 +32,8 @@ export default function FaqsPage() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFaq, setSelectedFaq] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -87,6 +90,15 @@ export default function FaqsPage() {
   const filtered = faqs.filter(f =>
     f.question?.toLowerCase().includes(search.toLowerCase()) ||
     f.answer?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const paginatedFaqs = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
 
   return (
@@ -154,7 +166,7 @@ export default function FaqsPage() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={4} className="py-12 text-center text-neutral-400">No questions found.</td></tr>
             ) : (
-              filtered.map(f => (
+              paginatedFaqs.map(f => (
                 <tr key={f.id} className="hover:bg-[#181818]/60 transition-colors">
                   <td className="px-6 py-4 font-semibold text-white max-w-xs">
                     <p className="line-clamp-2">{f.question}</p>
@@ -188,6 +200,14 @@ export default function FaqsPage() {
           </tbody>
         </table>
       </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="FAQs"
+      />
 
       <FaqModal
         isOpen={modalOpen}

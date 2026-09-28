@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import PageModal from './page-modal';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Plus,
   Search,
@@ -34,6 +35,8 @@ export default function StaticPages() {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPage, setSelectedPage] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -87,9 +90,20 @@ export default function StaticPages() {
   const canEdit = hasPermission('page-edit', currentUser);
   const canDelete = hasPermission('page-delete', currentUser);
 
-  const filtered = pages.filter(p =>
-    p.title?.toLowerCase().includes(search.toLowerCase()) ||
-    p.slug?.toLowerCase().includes(search.toLowerCase())
+  const filtered = pages
+    .filter(p => !['home', 'faqs', 'blogs', 'services', 'projects'].includes(p.slug))
+    .filter(p =>
+      p.title?.toLowerCase().includes(search.toLowerCase()) ||
+      p.slug?.toLowerCase().includes(search.toLowerCase())
+    );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const paginatedPages = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
 
   return (
@@ -157,7 +171,7 @@ export default function StaticPages() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={4} className="py-12 text-center text-neutral-400">No pages found.</td></tr>
             ) : (
-              filtered.map(p => (
+              paginatedPages.map(p => (
                 <tr key={p.id} className="hover:bg-[#181818]/60 transition-colors">
                   <td className="px-6 py-4 font-medium text-white">
                     <div className="flex items-center space-x-3">
@@ -207,6 +221,14 @@ export default function StaticPages() {
           </tbody>
         </table>
       </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="pages"
+      />
 
       <PageModal
         isOpen={modalOpen}

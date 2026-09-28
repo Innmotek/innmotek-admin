@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Layers,
   Plus,
@@ -37,6 +38,8 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterParent, setFilterParent] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -198,6 +201,16 @@ export default function CategoriesPage() {
     return matchesSearch;
   });
 
+  // Reset to page 1 on filter or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterParent]);
+
+  const paginatedCategories = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header Bar */}
@@ -306,7 +319,7 @@ export default function CategoriesPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map(cat => (
+                paginatedCategories.map(cat => (
                   <tr key={cat.id} className="hover:bg-[#181818]/60 transition-colors">
                     {/* Title + Thumbnail */}
                     <td className="px-6 py-4 font-medium text-white">
@@ -409,6 +422,15 @@ export default function CategoriesPage() {
           </table>
         </div>
       </div>
+
+      {/* Pagination Footer */}
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="categories"
+      />
 
       {/* Create / Edit Category Modal */}
       {modalOpen && (

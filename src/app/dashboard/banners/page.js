@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BannerModal from './banner-modal';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Plus,
   Search,
@@ -33,6 +34,8 @@ export default function BannersPage() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -89,6 +92,15 @@ export default function BannersPage() {
   const filtered = banners.filter(b =>
     b.title?.toLowerCase().includes(search.toLowerCase()) ||
     b.description?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const paginatedBanners = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
 
   return (
@@ -158,7 +170,7 @@ export default function BannersPage() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={6} className="py-12 text-center text-neutral-400">No banners found.</td></tr>
             ) : (
-              filtered.map(b => (
+              paginatedBanners.map(b => (
                 <tr key={b.id} className="hover:bg-[#181818]/60 transition-colors">
                   <td className="px-6 py-4">
                     <div className="relative h-14 w-28 shrink-0 overflow-hidden rounded-lg border border-[#2B2B2B] bg-[#181818]">
@@ -218,6 +230,14 @@ export default function BannersPage() {
           </tbody>
         </table>
       </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="banners"
+      />
 
       <BannerModal
         isOpen={modalOpen}

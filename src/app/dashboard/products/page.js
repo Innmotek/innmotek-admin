@@ -31,7 +31,9 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  Filter
+  Filter,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function ProductsPage() {
@@ -42,6 +44,8 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [featuredFilter, setFeaturedFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -138,6 +142,17 @@ export default function ProductsPage() {
 
     return matchesSearch && matchesCategory && matchesFeatured;
   });
+
+  // Reset to page 1 whenever filters or search criteria change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter, featuredFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginatedProducts = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -261,7 +276,7 @@ export default function ProductsPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map(p => (
+                paginatedProducts.map(p => (
                   <tr key={p.id} className="hover:bg-[#181818]/60 transition-colors">
                     {/* Thumbnail + Title */}
                     <td className="px-6 py-4 font-medium text-white">
@@ -370,6 +385,63 @@ export default function ProductsPage() {
           </table>
         </div>
       </div>
+
+      {/* Pagination Footer (10 items per page) */}
+      {filtered.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1 text-xs text-neutral-400">
+          <div className="font-mono">
+            Showing <span className="font-bold text-white">{(currentPage - 1) * PAGE_SIZE + 1}</span> to{' '}
+            <span className="font-bold text-white">
+              {Math.min(currentPage * PAGE_SIZE, filtered.length)}
+            </span>{' '}
+            of <span className="font-bold text-[#C5A880]">{filtered.length}</span> products
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-[#2B2B2B] font-medium transition-colors ${
+                currentPage === 1
+                  ? 'text-neutral-600 bg-[#141414] cursor-not-allowed opacity-50'
+                  : 'text-neutral-300 bg-[#181818] hover:border-[#C5A880] hover:text-[#C5A880] cursor-pointer'
+              }`}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              <span>Previous</span>
+            </button>
+
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`h-8 w-8 rounded-lg text-xs font-mono font-bold transition-all ${
+                    currentPage === pageNum
+                      ? 'bg-[#C5A880] text-[#0A0A0A] shadow-md shadow-[#C5A880]/20'
+                      : 'border border-[#2B2B2B] bg-[#161616] text-neutral-400 hover:border-[#3D3D3D] hover:text-white'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-[#2B2B2B] font-medium transition-colors ${
+                currentPage === totalPages
+                  ? 'text-neutral-600 bg-[#141414] cursor-not-allowed opacity-50'
+                  : 'text-neutral-300 bg-[#181818] hover:border-[#C5A880] hover:text-[#C5A880] cursor-pointer'
+              }`}
+            >
+              <span>Next</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Product Create / Edit Modal */}
       <ProductModal

@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BlogModal from './blog-modal';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Plus,
   Search,
@@ -38,6 +39,8 @@ export default function BlogsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -100,6 +103,15 @@ export default function BlogsPage() {
     const matchCat = categoryFilter === 'all' || String(b.category_id) === String(categoryFilter);
     return matchSearch && matchCat;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter]);
+
+  const paginatedBlogs = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -181,7 +193,7 @@ export default function BlogsPage() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={6} className="py-12 text-center text-neutral-400">No articles found.</td></tr>
             ) : (
-              filtered.map(b => (
+              paginatedBlogs.map(b => (
                 <tr key={b.id} className="hover:bg-[#181818]/60 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
@@ -242,6 +254,14 @@ export default function BlogsPage() {
           </tbody>
         </table>
       </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="articles"
+      />
 
       <BlogModal
         isOpen={modalOpen}

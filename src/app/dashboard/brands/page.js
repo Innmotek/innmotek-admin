@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { getCurrentUser, authFetch } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import BrandModal from './brand-modal';
+import TablePagination from '@/components/common/table-pagination';
 import {
   Plus,
   Search,
@@ -34,6 +35,8 @@ export default function BrandsPage() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [feedback, setFeedback] = useState(null);
@@ -89,6 +92,15 @@ export default function BrandsPage() {
 
   const filtered = brands.filter(b =>
     b.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const paginatedBrands = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
 
   return (
@@ -157,7 +169,7 @@ export default function BrandsPage() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={5} className="py-12 text-center text-neutral-400">No brands found.</td></tr>
             ) : (
-              filtered.map(b => (
+              paginatedBrands.map(b => (
                 <tr key={b.id} className="hover:bg-[#181818]/60 transition-colors">
                   <td className="px-6 py-4">
                     <div className="relative h-12 w-24 shrink-0 overflow-hidden rounded-lg border border-[#2B2B2B] bg-white/5 p-1 flex items-center justify-center">
@@ -210,6 +222,14 @@ export default function BrandsPage() {
           </tbody>
         </table>
       </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalItems={filtered.length}
+        pageSize={PAGE_SIZE}
+        onPageChange={setCurrentPage}
+        itemLabel="brands"
+      />
 
       <BrandModal
         isOpen={modalOpen}

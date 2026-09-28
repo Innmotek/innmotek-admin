@@ -17,7 +17,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getCurrentUser, clearAuthSession, isAuthenticated } from '@/lib/auth';
+import { getCurrentUser, clearAuthSession, isAuthenticated, authFetch } from '@/lib/auth';
 import {
   LayoutDashboard,
   Layers,
@@ -25,8 +25,6 @@ import {
   Image as ImageIcon,
   BookOpen,
   Briefcase,
-  Wrench,
-  MessageSquare,
   Award,
   HelpCircle,
   FileText,
@@ -35,22 +33,19 @@ import {
   ChevronRight,
   Shield,
   Menu,
-  X,
-  ExternalLink
+  X
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Categories', href: '/dashboard/categories', icon: Layers, count: '33' },
-  { name: 'Products', href: '/dashboard/products', icon: Box, count: '12' },
-  { name: 'Banners', href: '/dashboard/banners', icon: ImageIcon, count: '16' },
-  { name: 'Blogs & News', href: '/dashboard/blogs', icon: BookOpen, count: '4' },
-  { name: 'Projects', href: '/dashboard/projects', icon: Briefcase, count: '0' },
-  { name: 'Services', href: '/dashboard/services', icon: Wrench, count: '1' },
-  { name: 'Testimonials', href: '/dashboard/testimonials', icon: MessageSquare, count: '3' },
-  { name: 'Brands', href: '/dashboard/brands', icon: Award, count: '2' },
-  { name: 'FAQs', href: '/dashboard/faqs', icon: HelpCircle, count: '9' },
-  { name: 'Static Pages', href: '/dashboard/pages', icon: FileText, count: '10' },
+  { name: 'Categories', href: '/dashboard/categories', icon: Layers, statKey: 'categories' },
+  { name: 'Products', href: '/dashboard/products', icon: Box, statKey: 'products' },
+  { name: 'Banners', href: '/dashboard/banners', icon: ImageIcon, statKey: 'banners' },
+  { name: 'Blogs & News', href: '/dashboard/blogs', icon: BookOpen, statKey: 'blogs' },
+  { name: 'Projects', href: '/dashboard/projects', icon: Briefcase, statKey: 'projects' },
+  { name: 'Brands', href: '/dashboard/brands', icon: Award, statKey: 'brands' },
+  { name: 'FAQs', href: '/dashboard/faqs', icon: HelpCircle, statKey: 'faqs' },
+  { name: 'Static Pages', href: '/dashboard/pages', icon: FileText, statKey: 'pages' },
   { name: 'Data Cleanup', href: '/dashboard/cleanup', icon: Trash2, badge: 'Purge' },
 ];
 
@@ -60,6 +55,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState(null);
+  const [stats, setStats] = useState({});
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -71,6 +67,20 @@ export default function DashboardLayout({ children }) {
       setUser(getCurrentUser());
     }
   }, [router]);
+
+  // Fetch dynamic live row counts from backend whenever navigation path changes
+  useEffect(() => {
+    if (isAuthenticated()) {
+      authFetch(`${API_URL}/admin/stats`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.result === 'success' && data.stats) {
+            setStats(data.stats);
+          }
+        })
+        .catch((err) => console.error('Failed to fetch dynamic stats:', err));
+    }
+  }, [pathname]);
 
   function handleLogout() {
     clearAuthSession();
@@ -179,7 +189,7 @@ export default function DashboardLayout({ children }) {
                   />
                   <span>{item.name}</span>
                 </div>
-                {item.count && (
+                {item.statKey && stats[item.statKey] !== undefined ? (
                   <span
                     className={`rounded-md px-1.5 py-0.5 text-[10px] font-mono ${
                       isActive
@@ -187,9 +197,19 @@ export default function DashboardLayout({ children }) {
                         : 'bg-[#1C1C1C] text-neutral-400 group-hover:text-neutral-300'
                     }`}
                   >
-                    {item.count}
+                    {stats[item.statKey]}
                   </span>
-                )}
+                ) : item.badge ? (
+                  <span
+                    className={`rounded-md px-1.5 py-0.5 text-[10px] font-mono ${
+                      isActive
+                        ? 'bg-[#0A0A0A]/20 text-[#0A0A0A]'
+                        : 'bg-[#1C1C1C] text-neutral-400 group-hover:text-neutral-300'
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
@@ -222,19 +242,6 @@ export default function DashboardLayout({ children }) {
             <span className="text-xs font-medium text-neutral-300 capitalize">
               {pathname.replace('/dashboard', '') || 'Overview'}
             </span>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <a
-              href={`${API_URL}/health`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center space-x-1.5 rounded-lg border border-[#2A2A2A] bg-[#141414] px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:border-[#C5A880]/50 hover:text-[#C5A880]"
-            >
-              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>API Live (5000)</span>
-              <ExternalLink className="h-3 w-3 text-neutral-500" />
-            </a>
           </div>
         </header>
 
