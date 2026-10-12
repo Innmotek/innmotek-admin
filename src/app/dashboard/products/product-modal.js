@@ -31,11 +31,30 @@ import {
   Settings,
   Image as ImageIcon,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Download,
+  FileText,
+  ExternalLink,
+  Paperclip
 } from 'lucide-react';
 import { authRequestWithProgress } from '@/lib/auth';
 import { compressImage, formatBytes } from '@/lib/image-utils';
 import DualModeEditor from '@/components/common/dual-mode-editor';
+
+function parseExistingDownloads(prod) {
+  if (!prod) return [];
+  if (Array.isArray(prod.downloads)) return prod.downloads;
+  if (Array.isArray(prod.catalogues)) return prod.catalogues;
+  if (prod.download && typeof prod.download === 'string' && prod.download.trim() && prod.download !== '<p><br></p>') {
+    try {
+      const parsed = JSON.parse(prod.download);
+      return Array.isArray(parsed) ? parsed : [{ title: `${prod.title || 'Product'} Brochure`, file: prod.download }];
+    } catch {
+      return [{ title: `${prod.title || 'Product'} Brochure`, file: prod.download }];
+    }
+  }
+  return [];
+}
 
 export default function ProductModal({
   isOpen,
@@ -73,6 +92,7 @@ export default function ProductModal({
     gallery_meta: [],
     existing_gallery: [],
     deleted_gallery_ids: [],
+    downloads: [],
     seo_title: '',
     seo_keyword: '',
     seo_description: ''
@@ -103,6 +123,7 @@ export default function ProductModal({
         gallery_meta: [],
         existing_gallery: Array.isArray(product.gallery) ? product.gallery : [],
         deleted_gallery_ids: [],
+        downloads: parseExistingDownloads(product),
         seo_title: product.seo_title || '',
         seo_keyword: product.seo_keyword || '',
         seo_description: product.seo_description || ''
@@ -129,6 +150,7 @@ export default function ProductModal({
         gallery_meta: [],
         existing_gallery: [],
         deleted_gallery_ids: [],
+        downloads: [],
         seo_title: '',
         seo_keyword: '',
         seo_description: ''
@@ -236,6 +258,54 @@ export default function ProductModal({
     }));
   }
 
+  // Manage Technical Downloads & Brochures
+  function addDownloadItem() {
+    setFormData(prev => ({
+      ...prev,
+      downloads: [
+        ...prev.downloads,
+        { title: '', file: '', file_base64: null, filename: '' }
+      ]
+    }));
+  }
+
+  function updateDownloadItem(index, field, value) {
+    setFormData(prev => ({
+      ...prev,
+      downloads: prev.downloads.map((item, i) => i === index ? { ...item, [field]: value } : item)
+    }));
+  }
+
+  function removeDownloadItem(index) {
+    setFormData(prev => ({
+      ...prev,
+      downloads: prev.downloads.filter((_, i) => i !== index)
+    }));
+  }
+
+  function handleDownloadFileUpload(index, file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData(prev => ({
+        ...prev,
+        downloads: prev.downloads.map((item, i) => {
+          if (i === index) {
+            return {
+              ...item,
+              title: item.title || file.name.replace(/\.[^/.]+$/, ''),
+              file: file.name,
+              file_base64: reader.result,
+              filename: file.name
+            };
+          }
+          return item;
+        })
+      }));
+    };
+    reader.readAsDataURL(file);
+  }
+
   // Submit with real 0%-100% upload progress tracking
   async function handleSubmit(e) {
     e.preventDefault();
@@ -325,7 +395,8 @@ export default function ProductModal({
             { id: 'general', label: '1. General Info', icon: Info },
             { id: 'technical', label: '2. Technical Specs', icon: Settings },
             { id: 'media', label: `3. Media & Gallery (${totalGalleryCount + (formData.image_preview ? 1 : 0)})`, icon: ImageIcon },
-            { id: 'seo', label: '4. SEO & Visibility', icon: Globe },
+            { id: 'downloads', label: `4. Downloads & Brochures (${formData.downloads.length})`, icon: Download },
+            { id: 'seo', label: '5. SEO & Visibility', icon: Globe },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -624,7 +695,163 @@ export default function ProductModal({
               </div>
             )}
 
-            {/* TAB 4: SEO & Visibility */}
+            {/* TAB 4: Technical Downloads & Brochures */}
+            {activeTab === 'downloads' && (
+              <div className="space-y-5 animate-fadeIn">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#C5A880]/30 bg-[#C5A880]/5 p-4">
+                  <div className="space-y-1">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                      <Download className="h-4 w-4 text-[#C5A880]" />
+                      <span>Product Technical Brochures & Spec Sheets</span>
+                    </h3>
+                    <p className="text-[11px] text-neutral-400">
+                      Files added here appear in the customer-facing <strong>Downloads tab</strong> on the product detail page for viewing and direct download.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addDownloadItem}
+                    className="inline-flex items-center space-x-1.5 rounded-lg bg-[#C5A880] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-[#0A0A0A] hover:bg-[#D4B890] transition-colors shrink-0 cursor-pointer shadow"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Document</span>
+                  </button>
+                </div>
+
+                {formData.downloads.length > 0 ? (
+                  <div className="space-y-4">
+                    {formData.downloads.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-[#2B2B2B] bg-[#161616] p-4 space-y-3.5 hover:border-[#3E3E3E] transition-all"
+                      >
+                        <div className="flex items-center justify-between border-b border-[#242424] pb-2.5">
+                          <div className="flex items-center space-x-2">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#C5A880]/15 text-[#C5A880] text-[11px] font-bold">
+                              #{idx + 1}
+                            </span>
+                            <span className="text-xs font-semibold text-white">
+                              {doc.title || `Document #${idx + 1}`}
+                            </span>
+                            {doc.file_base64 && (
+                              <span className="rounded bg-emerald-950/80 border border-emerald-800 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 uppercase">
+                                Staged for Sync
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeDownloadItem(idx)}
+                            className="text-neutral-400 hover:text-red-400 p-1 rounded hover:bg-[#202020] transition-colors cursor-pointer"
+                            title="Remove document"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                          {/* Title Input */}
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-300">
+                              Document Title *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={doc.title || ''}
+                              onChange={e => updateDownloadItem(idx, 'title', e.target.value)}
+                              placeholder="e.g. Technical Data Sheet & Wiring Schematic"
+                              className="w-full rounded-lg border border-[#2B2B2B] bg-[#1A1A1A] px-3.5 py-2 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
+                            />
+                          </div>
+
+                          {/* URL Input */}
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold uppercase tracking-wider text-neutral-300">
+                              Document File URL / Link
+                            </label>
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                value={doc.file || ''}
+                                onChange={e => updateDownloadItem(idx, 'file', e.target.value)}
+                                placeholder="https://... or upload file below"
+                                className="flex-1 rounded-lg border border-[#2B2B2B] bg-[#1A1A1A] px-3.5 py-2 text-xs text-white placeholder-neutral-500 focus:border-[#C5A880] focus:outline-none"
+                              />
+                              {doc.file && (doc.file.startsWith('http://') || doc.file.startsWith('https://')) && (
+                                <a
+                                  href={doc.file}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="shrink-0 flex items-center justify-center px-3 rounded-lg border border-[#333] hover:border-[#C5A880] text-neutral-300 hover:text-white transition-colors"
+                                  title="Test Link"
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* File Upload Zone */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-[#202020] text-xs">
+                          <label className="inline-flex items-center space-x-2 text-[11px] text-[#C5A880] hover:text-[#DFCAAB] cursor-pointer">
+                            <Paperclip className="h-3.5 w-3.5" />
+                            <span>Or select PDF / Doc from computer to upload</span>
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
+                              className="hidden"
+                              onChange={e => handleDownloadFileUpload(idx, e.target.files[0])}
+                            />
+                          </label>
+                          {doc.filename && (
+                            <span className="text-[11px] text-neutral-400 truncate max-w-xs">
+                              Attached: <code className="text-white bg-[#222] px-1.5 py-0.5 rounded">{doc.filename}</code>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={addDownloadItem}
+                        className="inline-flex items-center space-x-2 rounded-lg border border-dashed border-[#333] hover:border-[#C5A880] px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:text-white transition-all cursor-pointer"
+                      >
+                        <Plus className="h-4 w-4 text-[#C5A880]" />
+                        <span>Add Another Document</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-[#2B2B2B] bg-[#141414] p-8 text-center space-y-3">
+                    <div className="h-10 w-10 rounded-full bg-[#C5A880]/15 flex items-center justify-center text-[#C5A880] mx-auto">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        No Brochures or Downloads Attached
+                      </h4>
+                      <p className="text-[11px] text-neutral-400 max-w-sm mx-auto">
+                        This product currently does not have technical documents attached. Customers will see a friendly &quot;Request Technical Package&quot; button.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addDownloadItem}
+                      className="inline-flex items-center space-x-1.5 rounded-lg bg-[#C5A880] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#0A0A0A] hover:bg-[#D4B890] transition-colors cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Add First Brochure</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 5: SEO & Visibility */}
             {activeTab === 'seo' && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:space-x-6 rounded-xl border border-[#262626] bg-[#151515] p-4">
