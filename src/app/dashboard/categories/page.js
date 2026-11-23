@@ -104,7 +104,7 @@ export default function CategoriesPage() {
     setFormData({
       title: cat.title || '',
       slug: cat.slug || '',
-      parent_id: cat.parent_id ? String(cat.parent_id) : '',
+      parent_id: (cat.parent_category || cat.parent_id) ? String(cat.parent_category || cat.parent_id) : '',
       description: cat.description || '',
       status: cat.status !== undefined ? cat.status : 1,
       image_base64: null,
@@ -195,9 +195,10 @@ export default function CategoriesPage() {
   const filtered = categories.filter(cat => {
     const matchesSearch = cat.title.toLowerCase().includes(search.toLowerCase()) ||
       cat.slug.toLowerCase().includes(search.toLowerCase());
-    
-    if (filterParent === 'top') return matchesSearch && !cat.parent_id;
-    if (filterParent === 'sub') return matchesSearch && !!cat.parent_id;
+
+    const hasParent = !!(cat.parent_category || cat.parent_id);
+    if (filterParent === 'top') return matchesSearch && !hasParent;
+    if (filterParent === 'sub') return matchesSearch && hasParent;
     return matchesSearch;
   });
 
@@ -244,11 +245,10 @@ export default function CategoriesPage() {
       {/* Feedback Alerts */}
       {feedback && (
         <div
-          className={`flex items-center justify-between rounded-xl border p-4 text-xs ${
-            feedback.type === 'success'
+          className={`flex items-center justify-between rounded-xl border p-4 text-xs ${feedback.type === 'success'
               ? 'border-emerald-800/50 bg-emerald-950/30 text-emerald-300'
               : 'border-red-900/50 bg-red-950/40 text-red-300'
-          }`}
+            }`}
         >
           <div className="flex items-center space-x-2">
             {feedback.type === 'success' ? (
@@ -379,11 +379,10 @@ export default function CategoriesPage() {
                     {/* Status */}
                     <td className="px-6 py-4 text-center">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          cat.status === 1
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${cat.status === 1
                             ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/40'
                             : 'bg-neutral-800 text-neutral-400'
-                        }`}
+                          }`}
                       >
                         {cat.status === 1 ? 'Active' : 'Disabled'}
                       </span>
